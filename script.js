@@ -107,7 +107,7 @@ function rotate(matrix, dir){
     }
 }
 
-functoin playerRotate(dir){
+function playerRotate(dir){
     const pos = player.pos.x;
     let offset = 1;
     rotate(player.matrix, dir);
@@ -174,6 +174,7 @@ window.addEventListener('keydown', (event) => {
 });
 
 nextMatrix()
+draw()
 gameLoop()
 
 
