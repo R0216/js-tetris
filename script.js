@@ -1,4 +1,4 @@
-import { PIECES } from "./pieces.js";
+import { PIECES, COLORS } from "./pieces.js";
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext("2d");
@@ -15,14 +15,15 @@ console.table(arena)
 
 const player = {
     pos: {x: 5, y: 0},
-    matrix: PIECES["T"],
+    matrix: null,
+    next: null,
 }
 
 function drawMatrix(matrix, offset) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
             if(value!==0) {
-                context.fillStyle = "red";
+                context.fillStyle = COLORS[value];
                 context.fillRect(x + offset.x, y + offset.y, 0.95, 0.95)
             }
         })
@@ -32,6 +33,13 @@ function drawMatrix(matrix, offset) {
 function draw () {
     context.fillStyle = "black";
     context.fillRect(0, 0, canvas.width, canvas.height);
+
+    //nextエリア
+    context.fillStyle = "white";
+    context.fillRect(12, 0, 5, 20);
+    const nextPos = {x: 13, y: 2.05};
+    drawMatrix(player.next, nextPos)
+    drawMatrix(arena, {x: 0, y: 0});
     drawMatrix(player.matrix, {x: player.pos.x, y: player.pos.y});
 }
 
@@ -63,6 +71,59 @@ function collide(arena, player) {
     return false
 }
 
+function nextMatrix() {
+    const pieces = 'TILJSZO';
+    if(player.next === null) {
+        player.next = PIECES[pieces[Math.floor(Math.random() * pieces.length)]];
+    }
+
+    player.matrix = JSON.parse(JSON.stringify(player.next));
+    player.next = PIECES[pieces[Math.floor(Math.random() * pieces.length)]];
+
+    player.pos.x = 5;
+    player.pos.y = 0;
+    if(collide(arena, player)) {
+        arena.forEach(row => row.fill(0));
+        dropInterval = 1000;
+    }
+}
+
+function rotate(matrix, dir){
+    for (let y = 0; y < matrix.length; y++) {
+        for (let x = 0; x < y; x++) {
+            [
+                matrix[x][y],
+                matrix[y][x],
+            ] = [
+                matrix[y][x],
+                matrix[x][y],
+            ];
+        }
+    }
+    if(dir > 0){
+        matrix.forEach(row => row.reverse());
+    } else {
+        matrix.reverse()
+    }
+}
+
+functoin playerRotate(dir){
+    const pos = player.pos.x;
+    let offset = 1;
+    rotate(player.matrix, dir);
+
+    while(collide(arena, player)) {
+        player.pos.x += offset;
+        offset = -(offset + (offset > 0 ? 1: -1));
+
+        if (offset > player.matrix[0].length) {
+            rotate(player.matrix, -dir);
+            player.pos.x = pos;
+            return;
+        }
+    }
+}
+
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
@@ -76,6 +137,7 @@ function gameLoop(time = 0) {
         if (collide(arena, player)) {
             player.pos.y--;
             merge(arena, player)
+            nextMatrix()
         }
         dropCounter = 0;
     }
@@ -107,6 +169,7 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
+nextMatrix()
 gameLoop()
 
 
