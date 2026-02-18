@@ -166,6 +166,10 @@ window.addEventListener('keydown', (event) => {
         if(collide(arena, player)) {
             player.pos.x--;
         }
+    } else if(event.key === "q") {
+        playerRotate(-1);
+    } else if(event.key === "w") {
+        playerRotate(1);
     }
 });
 
