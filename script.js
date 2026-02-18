@@ -19,6 +19,7 @@ const player = {
     next: null,
     hold: null,
     canHold: true,
+    score: 0,
 }
 
 function drawMatrix(matrix, offset) {
@@ -48,6 +49,12 @@ function draw () {
     context.fillRect(0, 0, 5, 20);
     const holdPos = {x: 1.2, y: 2.05};
     if (player.hold){drawMatrix(player.hold, holdPos);}
+
+    //scoreエリア
+    context.fillStyle = "black";
+    context.font = "1px Arial";
+    context.fillText("SCORE", OFFSET_X + 12.6, 8);
+    context.fillText(player.score, OFFSET_X + 14.2, 9);
     drawMatrix(arena, {x: OFFSET_X, y: 0});
     drawMatrix(player.matrix, {x: OFFSET_X + player.pos.x, y: player.pos.y});
 }
@@ -63,6 +70,7 @@ function merge(arena, player) {
 }
 
 function arenaSweep() {
+    let rowCount = 1
     for (let y = arena.length - 1; y >= 0; y--) {
         let isFull = true;
         for (let x = 0; x < arena[y].length;x++){
@@ -76,6 +84,8 @@ function arenaSweep() {
             const row = arena.splice(y, 1)[0].fill(0);
             arena.unshift(row);
             y++;
+            player.score += rowCount * 10;
+            rowCount *= 2
         }
     }
 }
@@ -211,9 +221,9 @@ window.addEventListener('keydown', (event) => {
         if(collide(arena, player)) {
             player.pos.x--;
         }
-    } else if(event.key === "a") {
-        playerRotate(-1);
     } else if(event.key === "s") {
+        playerRotate(-1);
+    } else if(event.key === "a") {
         playerRotate(1);
     } else if(event.key === "f") {
         hold()
