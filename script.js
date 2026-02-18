@@ -17,6 +17,8 @@ const player = {
     pos: {x: 5, y: 0},
     matrix: null,
     next: null,
+    hold: null,
+    canHold: true,
 }
 
 function drawMatrix(matrix, offset) {
@@ -86,6 +88,7 @@ function nextMatrix() {
         arena.forEach(row => row.fill(0));
         dropInterval = 1000;
     }
+    player.canHold = true;
 }
 
 function rotate(matrix, dir){
@@ -121,6 +124,22 @@ function playerRotate(dir){
             player.pos.x = pos;
             return;
         }
+    }
+}
+
+function hold(){
+    if(!player.canHold) return;
+
+    if(player.hold === null) {
+        player.hold = player.matrix;
+        nextMatrix();
+    } else {
+        const temp = player.matrix;
+        player.matrix = player.hold;
+        player.hold = temp;
+        player.pos.y = 0;
+        player.pos.x = 5;
+        player.canHold = false;
     }
 }
 
@@ -170,6 +189,8 @@ window.addEventListener('keydown', (event) => {
         playerRotate(-1);
     } else if(event.key === "w") {
         playerRotate(1);
+    } else if(event.key === "f") {
+        hold()
     }
 });
 
