@@ -2,9 +2,12 @@ import { PIECES, COLORS } from "./pieces.js";
 
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext("2d");
+const startButton = document.getElementById("start-button");
+const overlay = document.getElementById("overlay");
 
 
-context.scale(20, 20);
+context.scale(30, 30);
+let isRunning = false;
 
 function createMatrix(w, h) {
     return Array.from({length: h}, () => new Array(w).fill(0));
@@ -120,6 +123,10 @@ function nextMatrix() {
     player.pos.x = 5;
     player.pos.y = 0;
     if(collide(arena, player)) {
+        isRunning = false;
+        overlay.style.display = "flex";
+        startButton.innerText = "RESSTART";
+        alert("GAME OVER");
         arena.forEach(row => row.fill(0));
         dropInterval = 1000;
     }
@@ -182,6 +189,7 @@ let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 function gameLoop(time = 0) {
+    if(!isRunning) return;
     const deltaTime = time - lastTime;
     lastTime = time;
     dropCounter += deltaTime;
@@ -202,8 +210,19 @@ function gameLoop(time = 0) {
 }
 
 
+startButton.addEventListener("click", () => {
+        if(player.score === 0){
+            arena.forEach(row => row.fill(0));
+        }
+        isRunning = true;
+        overlay.style.display = "none";
+        lastTime = performance.now();
+        gameLoop()
+})
 
 window.addEventListener('keydown', (event) => {
+    if(!isRunning) return;
+
     if(event.key === "ArrowDown") {
         player.pos.y++;
         dropCounter = 0;

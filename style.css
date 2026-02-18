@@ -4,3 +4,27 @@ canvas{
     display: block;
     margin: 0 auto;
 }
+
+#game-container{
+    position: relative; 
+    width: fit-content;
+}
+
+#overlay{
+    position: absolute; 
+    top: 0; 
+    left: 150px; 
+    width: 360px; 
+    height: 600px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#start-button{
+    padding: 10px 20px; 
+    font-size: 20px; 
+    cursor: pointer;
+}
+
