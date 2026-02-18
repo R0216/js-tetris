@@ -35,14 +35,21 @@ function drawMatrix(matrix, offset) {
 function draw () {
     context.fillStyle = "black";
     context.fillRect(0, 0, canvas.width, canvas.height);
+    const OFFSET_X = 5;
 
     //nextエリア
     context.fillStyle = "white";
-    context.fillRect(12, 0, 5, 20);
-    const nextPos = {x: 13, y: 2.05};
+    context.fillRect(OFFSET_X + 12, 0, 5, 20);
+    const nextPos = {x: OFFSET_X + 13, y: 2.05};
     drawMatrix(player.next, nextPos)
-    drawMatrix(arena, {x: 0, y: 0});
-    drawMatrix(player.matrix, {x: player.pos.x, y: player.pos.y});
+
+    //holdエリア
+    context.fillStyle = "white";
+    context.fillRect(0, 0, 5, 20);
+    const holdPos = {x: 1.2, y: 2.05};
+    if (player.hold){drawMatrix(player.hold, holdPos);}
+    drawMatrix(arena, {x: OFFSET_X, y: 0});
+    drawMatrix(player.matrix, {x: OFFSET_X + player.pos.x, y: player.pos.y});
 }
 
 function merge(arena, player) {
@@ -53,6 +60,24 @@ function merge(arena, player) {
             }
         });
     });
+}
+
+function arenaSweep() {
+    for (let y = arena.length - 1; y >= 0; y--) {
+        let isFull = true;
+        for (let x = 0; x < arena[y].length;x++){
+            if(arena[y][x] === 0){
+                isFull = false;
+                break;
+            }
+        }
+
+        if(isFull) {
+            const row = arena.splice(y, 1)[0].fill(0);
+            arena.unshift(row);
+            y++;
+        }
+    }
 }
 
 function collide(arena, player) {
@@ -155,7 +180,8 @@ function gameLoop(time = 0) {
         player.pos.y++;
         if (collide(arena, player)) {
             player.pos.y--;
-            merge(arena, player)
+            merge(arena, player);
+            arenaSweep()
             nextMatrix()
         }
         dropCounter = 0;
@@ -185,9 +211,9 @@ window.addEventListener('keydown', (event) => {
         if(collide(arena, player)) {
             player.pos.x--;
         }
-    } else if(event.key === "q") {
+    } else if(event.key === "a") {
         playerRotate(-1);
-    } else if(event.key === "w") {
+    } else if(event.key === "s") {
         playerRotate(1);
     } else if(event.key === "f") {
         hold()
